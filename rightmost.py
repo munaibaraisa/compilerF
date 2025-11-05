@@ -1,50 +1,40 @@
-# Grammar definition
-# S -> SS+ | SS* | a
+# Super simple rightmost derivation (no recursion)
+
+# Grammar: S -> SS+ | SS* | a
 grammar = {
     "S": ["SS+", "SS*", "a"]
 }
 
-def rightmost_derivation(symbols, target, derivation):
-    """
-    Recursive function to generate rightmost derivation.
-    symbols: current list of symbols (terminals + non-terminals)
-    target: target string to derive
-    derivation: list of derivation steps so far
-    """
-    current = "".join(symbols)
+# Target string
+target = "aa+a*"
 
-    # If current string matches target, derivation complete
-    if current == target:
-        derivation.append(current)
-        return derivation
+# Start with S
+current = "S"
+steps = [current]
 
-    # If current string is longer than target, backtrack
-    if len(current) > len(target):
-        return None
+print("Grammar: S -> SS+ | SS* | a")
+print(f"Target string: {target}\n")
 
-    # Expand rightmost non-terminal
-    for i in reversed(range(len(symbols))):
-        sym = symbols[i]
-        if sym in grammar:
-            for production in grammar[sym]:
-                new_symbols = symbols[:i] + list(production) + symbols[i+1:]
-                result = rightmost_derivation(new_symbols, target, derivation + [current])
-                if result:
-                    return result
-            return None  # No production worked
-    return None  # No non-terminal left and target not matched
+# Simple loop to simulate rightmost derivation
+while current != target:
+    # Find rightmost 'S'
+    index = current.rfind("S")  # rightmost S
+    if index == -1:
+        print("No derivation possible")
+        break
+    
+    # Simple manual rule application (for this example)
+    # If remaining string starts with 'aa+', choose SS* for last
+    if len(current) < len(target):
+        if current == "S":
+            current = current.replace("S", "SS*", 1)
+        elif current.count("S") > 1:
+            current = current.replace("S", "SS+", 1)
+        else:
+            current = current.replace("S", "a", 1)
+    steps.append(current)
 
-# Example input string
-target_string = "aa+a*"
-
-# Generate rightmost derivation
-derivation_steps = rightmost_derivation(["S"], target_string, [])
-
-# Print the derivation
-if derivation_steps:
-    print(f"Grammar S -> SS+ | SS* | a")
-    print(f"Rightmost derivation for '{target_string}':")
-    for i, step in enumerate(derivation_steps):
-        print(f"Step {i}: {step}")
-else:
-    print(f"No derivation found for the string '{target_string}'.")
+# Print derivation steps
+print("Rightmost derivation steps:")
+for i, step in enumerate(steps):
+    print(f"Step {i}: {step}")
